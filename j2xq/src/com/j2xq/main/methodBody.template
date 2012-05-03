@@ -1,0 +1,15 @@
+ModuleInvoke xdbcRequest = session.newModuleInvoke(null);
+
+{{%1}}
+xdbcRequest.setNewStringVariable("param", "{{%2}}");
+xdbcRequest.setModuleUri("test.xqy");
+ResultSequence resultSequence = session.submitRequest(xdbcRequest);
+XdmItem valueFromServer = resultSequence.itemAt(0);
+
+public String getResult(String q, int limit){
+	ModuleInvoke xdbcRequest = session.newModuleInvoke(null);
+	ArrayList<String> arr = new ArrayList();
+	arr.add((String)q);
+	arr.add(Integer.valueOf(limit));
+	xdbcRequest.setNewStringVariable("param", "{{%2}}");
+}
