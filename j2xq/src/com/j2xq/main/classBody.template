@@ -1,0 +1,6 @@
+	Session session;
+	
+	public {{%1}}(Session session){
+		this.session = session;
+	}
+	

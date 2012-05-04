@@ -24,7 +24,7 @@ public class CustomClassLoader extends ClassLoader {
             input.close();
 
             byte[] classData = buffer.toByteArray();
-
+           
             return defineClass(name,
                     classData, 0, classData.length);            
     }

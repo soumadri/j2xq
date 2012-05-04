@@ -1,16 +1,16 @@
 package com.j2xq.main;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStreamReader;
 
+import com.j2xq.exception.NotImplementedException;
 import com.j2xq.exception.TypeNotSupportedException;
 import com.j2xq.generator.CodeGenerator;
 import com.j2xq.generator.StubGenerator;
 import com.j2xq.loader.ClassFileLoader;
 import com.j2xq.util.FSUtil;
 import com.j2xq.util.OSDetector;
+import com.j2xq.util.ResourceLoader;
 
 public class Main {
 
@@ -45,15 +45,15 @@ public class Main {
 			//Write the rolog to the main xqy
 			FSUtil.writeToFile(mainXQFile, prolog);
 			
-			BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(Main.class.getResourceAsStream("xqmain.template")));
+			/*BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(Main.class.getResourceAsStream()));
 			String content = "" , tmpcontent = "";
 			
 			while ((tmpcontent = bufferedReader.readLine()) != null) //loop through each line
             {              
 				content += tmpcontent + "\n"; 
-            }
+            }*/
 			
-			FSUtil.writeToFile(mainXQFile, content);
+			FSUtil.writeToFile(mainXQFile, ResourceLoader.readAsText("xqmain.template"));
 			
 			
 			//Code output dir
@@ -73,6 +73,9 @@ public class Main {
 		} catch (IOException e) {
 			e.printStackTrace();
 		} catch (TypeNotSupportedException e) {
+			e.printStackTrace();
+		} catch (NotImplementedException e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}

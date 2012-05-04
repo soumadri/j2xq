@@ -3,7 +3,14 @@ declare variable $params as xs:string external;
 
 let $paramXml := xdmp:unquote($params)
 let $function := xdmp:function(xs:QName(xs:string($paramXml/method/@name)))
-let $p := $paramXml/method/params/param/text()          
+let $p := for $each in $paramXml/method/params/param
+          return
+          (
+            if ($each/@type="xs:string") then
+                fn:concat('"',$each/text(),'"')
+            else
+                $each/text()
+          )          
 return 
 (    
     xdmp:eval(fn:concat('declare variable $function external; xdmp:apply($function,',fn:string-join($p,","),')'),(xs:QName('function'),$function))    
