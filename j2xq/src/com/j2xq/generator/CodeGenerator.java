@@ -10,7 +10,6 @@ import com.j2xq.exception.TypeNotSupportedException;
 import com.j2xq.util.FSUtil;
 import com.j2xq.util.OSDetector;
 import com.j2xq.util.ResourceLoader;
-import com.j2xq.util.XMLUtils;
 
 public class CodeGenerator {
 	public static String generateParamValueList(Method method) throws TypeNotSupportedException{
@@ -46,7 +45,7 @@ public class CodeGenerator {
 		
 		Method methods[] = dClass.getDeclaredMethods();
 		
-		String contentToWrite = ResourceLoader.readAsText("classImports.template");
+		String contentToWrite = ResourceLoader.readAsText("classImports.template") + addTypeImports(methods);//
 				
 		/*if(!dClass.getPackage().getName().equals(""))			
 			contentToWrite = "import " + dClass.getPackage().getName() + ";\n\npublic class " + dClass.getName()+"Impl implements "+dClass.getName() + " {\n";
@@ -61,6 +60,42 @@ public class CodeGenerator {
 		contentToWrite += "\n}";
 		
 		FSUtil.writeToFile(path, contentToWrite);
+	}
+	
+	public static String addTypeImports(Method methods[]){
+		String imports = "";
+		for (Method method : methods) {
+			Class<?>[] classes = method.getExceptionTypes();
+			
+			for (Class<?> class1 : classes) {
+				if(imports.indexOf(class1.getName()) == -1)
+					imports += "import " + class1.getName() + ";\n";
+			}
+			
+			classes = method.getParameterTypes();
+			for (Class<?> class1 : classes) {
+				if(class1.getName().startsWith("org.w3c.dom.")){
+					if(imports.indexOf(class1.getName()) == -1)
+						imports += "import " + class1.getName() + ";\n" + "import com.j2xq.util.XMLUtils;\n";
+				} else{
+					if(imports.indexOf(class1.getName()) == -1)
+						imports += "import " + class1.getName() + ";\n";
+				}
+			}
+			
+			Class<?> class1 = method.getReturnType();
+			
+			if(class1.getName().startsWith("org.w3c.dom.")){
+				if(imports.indexOf(class1.getName()) == -1)
+					imports += "import " + class1.getName() + ";\n" + "import com.j2xq.util.XMLUtils;\n";
+			} else{
+				if(imports.indexOf(class1.getName()) == -1)
+					imports += "import " + class1.getName() + ";\n";
+			}
+			
+		}
+		
+		return imports+"\n\n";
 	}
 	
 	public static String generateMethod(Method method) throws TypeNotSupportedException, IOException{
