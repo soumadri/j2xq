@@ -8,6 +8,10 @@ let $p := for $each in $paramXml/method/params/param
           (
             if ($each/@type="xs:string") then
                 fn:concat('"',$each/text(),'"')
+            else if($each/@type="xs:boolean") then
+                fn:concat('fn:',$each/text(),'()')
+            else if($each/@type="document-node(element(*, xs:untyped))") then
+                fn:concat('document{',xdmp:quote($each/*),'}')             
             else
                 $each/text()
           )          

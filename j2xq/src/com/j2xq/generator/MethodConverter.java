@@ -60,6 +60,10 @@ public class MethodConverter {
 			return "xs:decimal";
 		} else if(type == "java.math.BigInteger") {
 			return "xs:integer";
+		} else if(type == "org.w3c.dom.Document") {
+			return "document-node(element(*, xs:untyped))";
+		} else if(type == "org.w3c.dom.DocumentFragment") {
+			return "document-node(element(*, xs:untyped))";
 		} else {
 			throw new TypeNotSupportedException(type);
 		}

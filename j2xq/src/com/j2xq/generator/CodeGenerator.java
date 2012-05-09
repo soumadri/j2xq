@@ -10,6 +10,7 @@ import com.j2xq.exception.TypeNotSupportedException;
 import com.j2xq.util.FSUtil;
 import com.j2xq.util.OSDetector;
 import com.j2xq.util.ResourceLoader;
+import com.j2xq.util.XMLUtils;
 
 public class CodeGenerator {
 	public static String generateParamValueList(Method method) throws TypeNotSupportedException{
@@ -69,11 +70,14 @@ public class CodeGenerator {
 		if(method.getExceptionTypes().length > 0){
 			op += " throws ";
 			Class<?>[] classes = method.getExceptionTypes();
+			
 			int i=0;
 			for (Class<?> class1 : classes) {
 				op += class1.getSimpleName();
-				if(i < classes.length-1)
-					op += ",";
+				if(i < classes.length-1) {
+					op += ", ";
+					i++;
+				}
 			}
 		}
 		
@@ -146,6 +150,10 @@ public class CodeGenerator {
 			return var+".toString()";
 		} else if(type == "java.math.BigInteger") {
 			return var+".toString()";
+		} else if(type == "org.w3c.dom.Document") {
+			return "XMLUtils.toString("+var+")";
+		} else if(type == "org.w3c.dom.DocumentFragment") {
+			return "XMLUtils.toString("+var+")";
 		} else {
 			throw new TypeNotSupportedException(type);
 		}
@@ -186,6 +194,10 @@ public class CodeGenerator {
 			return "new java.math.BigDecimal(valueFromServer.asString())";
 		} else if(type == "java.math.BigInteger") {
 			return "new java.math.BigInteger(valueFromServer.asString())";
+		} else if(type == "org.w3c.dom.Document") {
+			return "XMLUtils.fromString(valueFromServer.asInputStream())";
+		} else if(type == "org.w3c.dom.DocumentFragment") {
+			return "XMLUtils.fromString(valueFromServer.asInputStream())";
 		} else {
 			throw new TypeNotSupportedException(type);
 		}
