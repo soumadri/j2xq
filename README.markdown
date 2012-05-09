@@ -2,3 +2,17 @@ j2xq for MarkLogic
 ==================
 
 XQuery function binder for java. It allows you to call XQuery functions directly from Java, as if it were native functions.
+
+How To
+------
+
+1. Download the repository as zip
+2. Go into the 'j2xq' directory
+3. Execute the ANT script 'build.xml'
+4. Copy the java interfaces (.java files) to 'j2xq' directory
+5. Run 'j2xq *.java' (w/o quotes) command from command line 
+6. This would generate the java and xquery code in the 'output/j' and 'output/xq' directories respectively
+7. Copy the java interfaces (defined by you) and the generated java classes from 'output/j' to your java project
+8. Copy the generated xquery stubs from 'output/xq' directory into XDBC server root. NOTE: All the files has to be on the server root, not inside any directory under root.
+
+Voila! Just add the body to the xquery functions and call the respective methods from generated java interface implementation classes (Impls).
