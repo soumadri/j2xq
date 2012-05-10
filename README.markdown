@@ -15,6 +15,6 @@ How To
 7. Copy the java interfaces (defined by you) and the generated java classes from 'output/j' to your java project
 8. Copy the generated xquery stubs from 'output/xq' directory into XDBC server root. NOTE: All the files has to be on the server root, not inside any directory under root.
 
-Voila! Just add the body to the xquery functions and call the respective methods from generated java interface implementation classes (Impls).
+Voila! Just add the body to the xquery functions and call the respective methods from generated java concrete classes (Impls).
 
 For more information jump to the [WiKi](https://github.com/soumadri/j2xq/wiki)
