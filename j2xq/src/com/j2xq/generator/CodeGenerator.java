@@ -68,17 +68,17 @@ public class CodeGenerator {
 			Class<?>[] classes = method.getExceptionTypes();
 			
 			for (Class<?> class1 : classes) {
-				if(imports.indexOf(class1.getName()) == -1)
+				if(imports.indexOf(class1.getName()) == -1 && class1.getName().indexOf('.') > 0)
 					imports += "import " + class1.getName() + ";\n";
 			}
 			
 			classes = method.getParameterTypes();
 			for (Class<?> class1 : classes) {
 				if(class1.getName().startsWith("org.w3c.dom.")){
-					if(imports.indexOf(class1.getName()) == -1)
+					if(imports.indexOf(class1.getName()) == -1 && class1.getName().indexOf('.') > 0)
 						imports += "import " + class1.getName() + ";\n" + "import com.j2xq.util.XMLUtils;\n";
 				} else{
-					if(imports.indexOf(class1.getName()) == -1)
+					if(imports.indexOf(class1.getName()) == -1 && class1.getName().indexOf('.') > 0)
 						imports += "import " + class1.getName() + ";\n";
 				}
 			}
@@ -89,7 +89,7 @@ public class CodeGenerator {
 				if(imports.indexOf(class1.getName()) == -1)
 					imports += "import " + class1.getName() + ";\n" + "import com.j2xq.util.XMLUtils;\n";
 			} else{
-				if(imports.indexOf(class1.getName()) == -1)
+				if(imports.indexOf(class1.getName()) == -1 && class1.getName().indexOf('.') > 0)
 					imports += "import " + class1.getName() + ";\n";
 			}
 			
