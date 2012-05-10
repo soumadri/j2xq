@@ -2,6 +2,15 @@ j2xq for MarkLogic
 ==================
 
 XQuery function binder for java. It allows you to call XQuery functions directly from Java, as if it were native functions.
+It basically is a code generator, which takes java interfaces as input and generates concrete java classes and respective xquery stubs. This makes it easy for java programmers to call xquery functions without knowing anything about XCC. 
+
+Features
+--------
+* Allows calling xquery functions from java code (opposed to module invocation supported in XCC)
+* Generates java code (to call xquery functions using XCC) and xquery stubs. Save time for coding XCC in java app. All required code would be generated.
+* Automatic type conversions (limited to supported types common between java and XDM)
+* Strong typing ensuring less errors in the code
+* Calling xquery functions from java allows easy unit testing of xquery functions by using frameworks like JUnit
 
 How To
 ------
