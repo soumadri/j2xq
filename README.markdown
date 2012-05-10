@@ -27,3 +27,6 @@ How To
 Voila! Just add the body to the xquery functions and call the respective methods from generated java concrete classes (Impls).
 
 For more information jump to the [WiKi](https://github.com/soumadri/j2xq/wiki)
+
+Reference:
+[Building Bridges from Java to XQuery](http://www.xmlprague.cz/2012/files/xmlprague-2012-proceedings.pdf#page=197)
