@@ -31,3 +31,5 @@ For more information jump to the [WiKi](https://github.com/soumadri/j2xq/wiki)
 
 Reference:
 [Building Bridges from Java to XQuery](http://www.xmlprague.cz/2012/files/xmlprague-2012-proceedings.pdf#page=197) by [Charles Foster](http://www.cfoster.net/)
+
+This work is under MIT license.
