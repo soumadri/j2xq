@@ -11,6 +11,7 @@ Features
 * Automatic type conversions (limited to supported types which are common between java and XDM)
 * Strong typing ensuring less errors in the code
 * Calling xquery functions from java allows easy unit testing of xquery functions by using frameworks like JUnit
+* Follows convention over configuration, so getting starte to j2xq takes very little time
 
 How To
 ------
@@ -29,4 +30,4 @@ Voila! Just add the body to the xquery functions and call the respective methods
 For more information jump to the [WiKi](https://github.com/soumadri/j2xq/wiki)
 
 Reference:
-[Building Bridges from Java to XQuery](http://www.xmlprague.cz/2012/files/xmlprague-2012-proceedings.pdf#page=197)
+[Building Bridges from Java to XQuery](http://www.xmlprague.cz/2012/files/xmlprague-2012-proceedings.pdf#page=197) by [Charles Foster](http://www.cfoster.net/)
