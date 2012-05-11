@@ -11,7 +11,7 @@ Features
 * Automatic type conversions (limited to supported types which are common between java and XDM)
 * Strong typing ensuring less errors in the code
 * Calling xquery functions from java allows easy unit testing of xquery functions by using frameworks like JUnit
-* Follows convention over configuration, so getting starte to j2xq takes very little time
+* Follows convention over configuration, so getting started with j2xq takes very little time
 
 How To
 ------
@@ -22,7 +22,7 @@ How To
 4. Copy the java interfaces (.java files) to 'j2xq' directory
 5. Run 'j2xq *.java' (w/o quotes) command from command line 
 6. This would generate the java and xquery code in the 'output/j' and 'output/xq' directories respectively
-7. Copy the java interfaces (defined by you) and the generated java classes from 'output/j' to your java project
+7. Copy the java interfaces (defined by you) and the generated java classes from 'output/j' to the java project for the application you are building
 8. Copy the generated xquery stubs from 'output/xq' directory into XDBC server root. NOTE: All the files has to be on the server root, not inside any directory under root.
 
 Voila! Just add the body to the xquery functions and call the respective methods from generated java concrete classes (Impls).
