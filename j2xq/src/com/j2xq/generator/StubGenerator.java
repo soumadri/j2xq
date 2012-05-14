@@ -13,9 +13,10 @@ public class StubGenerator {
 	public static String generateProlog(Class<?> class1,String ns){
 		String tmpName = MethodConverter.convertName(class1.getSimpleName());
 		String nsPrefix = getNamespacePrefix(class1).equals("")?(tmpName.startsWith("-")?tmpName.substring(1) : tmpName):getNamespacePrefix(class1);
+		String fname = tmpName.startsWith("-")?tmpName.substring(1) : tmpName;
 		nsPrefix = nsPrefix.equals("")?"local":nsPrefix;		
 		
-		String op = "import module namespace " + nsPrefix + " = \"" + ns + "\" at \"" + nsPrefix + ".xqy\";\n";
+		String op = "import module namespace " + nsPrefix + " = \"" + ns + "\" at \"" + fname + ".xqy\";\n";
 		
 		return op;
 	}
