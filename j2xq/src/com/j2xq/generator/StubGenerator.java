@@ -22,7 +22,12 @@ public class StubGenerator {
 	
 	public static String generateMethod(Method method,String nsPrefix) throws TypeNotSupportedException{
 		String funcPre = nsPrefix.equals("")?"declare function local:":"declare function "+nsPrefix+":";
-		String signature = funcPre + MethodConverter.convertName(method.getName())+"(";
+		String signature = "";
+			
+		if(getMethodName(method).equals(""))
+			signature += funcPre + MethodConverter.convertName(method.getName()) + "(";
+		else
+			signature += funcPre + getMethodName(method) + "(";			 
 		
 		signature += MethodConverter.convertParameter(method);		
 		
@@ -42,7 +47,10 @@ public class StubGenerator {
 		String nsPrefix = tmpName.startsWith("-")?tmpName.substring(1) : tmpName;
 		nsPrefix = nsPrefix.equals("")?"local:":nsPrefix+":";
 		
-		return nsPrefix+MethodConverter.convertName(method.getName());
+		if(getMethodName(method).equals(""))
+			return nsPrefix+MethodConverter.convertName(method.getName());
+		else
+			return nsPrefix+getMethodName(method);
 	}
 	
 	public static String generateStub(Class<?> dClass, String dir) throws IOException, TypeNotSupportedException{
@@ -91,4 +99,17 @@ public class StubGenerator {
 		return "";
 	}
 	
+	private static String getMethodName(Method method){
+		Annotation[] annotations = method.getAnnotations();
+		
+		for(Annotation annotation : annotations){
+		    if(annotation instanceof J2XQ){
+		        J2XQ annot = (J2XQ) annotation;		        
+		        if(annot.name().equals("name"))
+		        	return annot.value();		        
+		    }
+		}
+		
+		return "";
+	}
 }
