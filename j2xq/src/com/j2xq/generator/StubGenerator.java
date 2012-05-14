@@ -12,7 +12,7 @@ import com.j2xq.util.OSDetector;
 public class StubGenerator {
 	public static String generateProlog(Class<?> class1,String ns){
 		String tmpName = MethodConverter.convertName(class1.getSimpleName());
-		String nsPrefix = tmpName.startsWith("-")?tmpName.substring(1) : tmpName;
+		String nsPrefix = getNamespacePrefix(class1).equals("")?(tmpName.startsWith("-")?tmpName.substring(1) : tmpName):getNamespacePrefix(class1);
 		nsPrefix = nsPrefix.equals("")?"local":nsPrefix;		
 		
 		String op = "import module namespace " + nsPrefix + " = \"" + ns + "\" at \"" + nsPrefix + ".xqy\";\n";
@@ -44,7 +44,7 @@ public class StubGenerator {
 	public static String getFunctionName(Method method){
 		Class<?> class1 = method.getDeclaringClass();
 		String tmpName = MethodConverter.convertName(class1.getSimpleName());
-		String nsPrefix = tmpName.startsWith("-")?tmpName.substring(1) : tmpName;
+		String nsPrefix = getNamespacePrefix(class1).equals("")?(tmpName.startsWith("-")?tmpName.substring(1) : tmpName):getNamespacePrefix(class1);
 		nsPrefix = nsPrefix.equals("")?"local:":nsPrefix+":";
 		
 		if(getMethodName(method).equals(""))
@@ -66,12 +66,12 @@ public class StubGenerator {
 		String ns = "";
 		if(!getNamespace(dClass).equals("")){
 			String tmpName = MethodConverter.convertName(dClass.getName());
-			nsPrefix = tmpName.startsWith("-")?tmpName.substring(1) : tmpName;
+			nsPrefix = getNamespacePrefix(dClass).equals("")?(tmpName.startsWith("-")?tmpName.substring(1) : tmpName):getNamespacePrefix(dClass);
 			ns = getNamespace(dClass);
 			contentToWrite += "module namespace "+nsPrefix+" = \""+ns+"\";\n\n";
 		}else{
 			String tmpName = MethodConverter.convertName(dClass.getName());
-			nsPrefix = tmpName.startsWith("-")?tmpName.substring(1) : tmpName;
+			nsPrefix = getNamespacePrefix(dClass).equals("")?(tmpName.startsWith("-")?tmpName.substring(1) : tmpName):getNamespacePrefix(dClass);
 			ns = "http://www.j2xq.com/xq-stub/" + nsPrefix;
 			contentToWrite += "module namespace "+nsPrefix+" = \""+ns+"\";\n\n";
 		}
@@ -93,6 +93,19 @@ public class StubGenerator {
 		        J2XQ annot = (J2XQ) annotation;		        
 		        if(annot.name().equals("namespace"))
 		        	return annot.value();		        
+		    }
+		}
+		
+		return "";
+	}
+	
+	private static String getNamespacePrefix(Class<?> aClass){
+		Annotation[] annotations = aClass.getAnnotations();
+		
+		for(Annotation annotation : annotations){
+		    if(annotation instanceof J2XQ){
+		        J2XQ annot = (J2XQ) annotation;		        
+		        return annot.nsprefix();		        
 		    }
 		}
 		
