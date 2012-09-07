@@ -64,7 +64,7 @@ public class Main {
 			if(!fDir1.exists())
 				fDir1.mkdirs();
 			
-			//Create concretec class for each interface
+			//Create concrete class for each interface
 			for (Class<?> dClass : classes) {
 				CodeGenerator.generateCode(dClass, dir1);
 			}

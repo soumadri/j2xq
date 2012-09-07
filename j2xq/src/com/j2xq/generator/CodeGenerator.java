@@ -27,7 +27,7 @@ public class CodeGenerator {
 	}
 	
 	public static String toXML(String funcName, ArrayList<Param> params){
-		String op = "\t\tString params = \"<method name=\\"+"\""+funcName+"\\"+"\"><params>";
+		String op = "\t\t\tString params = \"<method name=\\"+"\""+funcName+"\\"+"\"><params>";
 		
 		for (Param param : params) {
 			op += "<param type=\\"+"\""+param.getType()+"\\"+"\">\"+"+param.getValue()+"+\"</param>";
@@ -68,8 +68,9 @@ public class CodeGenerator {
 			Class<?>[] classes = method.getExceptionTypes();
 			
 			for (Class<?> class1 : classes) {
-				if(imports.indexOf(class1.getName()) == -1 && class1.getName().indexOf('.') > 0)
-					imports += "import " + class1.getName() + ";\n";
+				if(imports.indexOf(class1.getName()) == -1 && class1.getName().indexOf('.') > 0 && !class1.getName().equals("com.marklogic.xcc.exceptions.RequestException")){
+					imports += "import " + class1.getName() + ";\n";					
+				}
 			}
 			
 			classes = method.getParameterTypes();
@@ -77,10 +78,10 @@ public class CodeGenerator {
 				if(class1.getName().startsWith("org.w3c.dom.")){
 					if(imports.indexOf(class1.getName()) == -1 && class1.getName().indexOf('.') > 0)
 						imports += "import " + class1.getName() + ";\n" + "import com.j2xq.util.XMLUtils;\n";
-				} else{
+				} else if(!class1.getName().startsWith("java.lang.")){
 					if(imports.indexOf(class1.getName()) == -1 && class1.getName().indexOf('.') > 0)
 						imports += "import " + class1.getName() + ";\n";
-				}
+				}				
 			}
 			
 			Class<?> class1 = method.getReturnType();
@@ -102,7 +103,7 @@ public class CodeGenerator {
 		String op = "\t" + getModifier(method.getModifiers()) + " " + method.getReturnType().getSimpleName() + " " + method.getName() + generateArgumentList(method); 
 		
 		//Check for 'throws' declarations
-		if(method.getExceptionTypes().length > 0){
+		/*if(method.getExceptionTypes().length > 0){
 			op += " throws ";
 			Class<?>[] classes = method.getExceptionTypes();
 			
@@ -114,9 +115,9 @@ public class CodeGenerator {
 					i++;
 				}
 			}
-		}
+		}*/
 		
-		op += " {\n";
+		op += " {\n\t\ttry{\n";
 		/*int i=1;
 		Class<?>[] types = method.getParameterTypes();
 		for (Class<?> type : types) {
@@ -126,9 +127,10 @@ public class CodeGenerator {
 		op += generateParamValueList(method);
 		op += ResourceLoader.readAsText("methodBody.template");
 		if(!method.getReturnType().getName().equals("void")){
-			op += "\t\tXdmItem valueFromServer = resultSequence.itemAt(0);\n";
-			op += "\t\treturn " + generateReturnTypecastedVariable(method.getReturnType().getName()) + ";";
+			op += "\t\t\tXdmItem valueFromServer = resultSequence.itemAt(0);\n";
+			op += "\t\t\treturn " + generateReturnTypecastedVariable(method.getReturnType().getName()) + ";";
 		}
+		op += "\n\t\t}\n\t\tcatch(Exception e)\n\t\t{\n\t\t\tthrow new GenericException(e);\n\t\t}";
 		op += "\n\t}\n\n";
 		
 		return op;

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="RestTest" default="jar" basedir=".">
+<project name="j2xq" default="copyxqy" basedir=".">
     
     <property file="build.properties"/>
     <property file="version.properties"/>
@@ -49,7 +49,7 @@
 	
 
     <target name="jar" depends="copy">
-        <echo>******Building the jar file******${project.name}.jar**</echo>
+        <echo>******Building the jar file ******${project.name}.jar**</echo>
         <path id="class.path">
             <fileset dir="${lib.dir}">
                 <include name="*.jar" />
@@ -67,5 +67,33 @@
 	    	</manifest>
         </jar>
     </target>
-
+    
+    
+    <!-- FOLLOWING TARGETS ARE FOR DEMO ONLY -->
+    <!-- =================================== -->
+    
+    <!-- copy the jar to the tool demo directory -->
+    <target name="copydemo" depends="jar">
+        <echo>******Copying the jar to demo location ******${demo.location}**</echo>        
+        <copy todir="${demo.location}">
+            <fileset dir="${dist.dir}" includes="*.jar"/>
+        </copy>        		
+    </target>
+    
+    <!-- Execute j2xq with sample data -->
+    <target name="execj2xq" depends="copydemo">
+        <echo>******Executing j2xq**</echo>
+	  	<exec executable="j2xq.bat" dir="${demo.exec.location}">
+	    	<arg value="Search.java"/>	    
+	  	</exec>
+	</target>
+	
+    <!-- Deploy the xqy files to ML server -->
+	<target name="copyxqy" depends="execj2xq">
+        <echo>******Deploy the xqy files to ML server root ******${demo.ml.server.root}**</echo>        
+        <copy todir="${demo.ml.server.root}">
+            <fileset dir="${demo.xqy.location}" includes="*.xqy"/>
+        </copy>        		
+    </target>
+    
 </project>
