@@ -17,5 +17,5 @@ let $p := for $each in $paramXml/method/params/param
           )          
 return 
 (    
-    xdmp:eval(fn:concat('declare variable $function external; xdmp:apply($function,',fn:string-join($p,","),')'),(xs:QName('function'),$function))    
+    xdmp:eval(fn:concat('declare option xdmp:update "true"; declare variable $function external; xdmp:apply($function,',fn:string-join($p,","),')'),(xs:QName('function'),$function))    
 )
