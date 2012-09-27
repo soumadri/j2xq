@@ -17,5 +17,14 @@ let $p := for $each in $paramXml/method/params/param
           )          
 return 
 (    
-    xdmp:eval(fn:concat('declare option xdmp:update "true"; declare variable $function external; xdmp:apply($function,',fn:string-join($p,","),')'),(xs:QName('function'),$function))    
+    let $query := if(fn:empty($p)) then
+				  (
+						fn:concat('declare option xdmp:update "true"; declare variable $function external; xdmp:apply($function)')
+				  )
+				  else
+				  (
+						fn:concat('declare option xdmp:update "true"; declare variable $function external; xdmp:apply($function,',fn:string-join($p,","),')')
+				  )	
+	return
+		xdmp:eval($query,(xs:QName('function'),$function))      
 )
