@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
 
+import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.OutputKeys;
@@ -28,7 +29,12 @@ public class XMLUtils {
 		return buffer.toString();
 	}
 	
-	public static Document fromString(InputStream xml) throws SAXException, IOException, ParserConfigurationException {		
-		return DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(xml);		
+	public static Document fromString(String xml) throws ParserConfigurationException, SAXException, IOException {		
+		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+
+	    factory.setNamespaceAware(true);
+	    DocumentBuilder builder = factory.newDocumentBuilder();
+
+	    return builder.parse(new ByteArrayInputStream(xml.getBytes()));		
 	}
 }

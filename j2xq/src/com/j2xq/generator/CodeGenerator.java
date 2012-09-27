@@ -232,9 +232,9 @@ public class CodeGenerator {
 		} else if(type == "java.math.BigInteger") {
 			return "new java.math.BigInteger(valueFromServer.asString())";
 		} else if(type == "org.w3c.dom.Document") {
-			return "XMLUtils.fromString(valueFromServer.asInputStream())";
+			return "XMLUtils.fromString(valueFromServer.asString())";
 		} else if(type == "org.w3c.dom.DocumentFragment") {
-			return "XMLUtils.fromString(valueFromServer.asInputStream())";
+			return "XMLUtils.fromString(valueFromServer.asString())";
 		} else {
 			throw new TypeNotSupportedException(type);
 		}
