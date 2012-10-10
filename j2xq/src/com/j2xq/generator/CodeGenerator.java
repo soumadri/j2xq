@@ -5,13 +5,18 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 
+import org.apache.log4j.Logger;
+
 import com.j2xq.exception.NotImplementedException;
 import com.j2xq.exception.TypeNotSupportedException;
 import com.j2xq.util.FSUtil;
-import com.j2xq.util.OSDetector;
 import com.j2xq.util.ResourceLoader;
 
 public class CodeGenerator {
+	static final Logger logger = Logger.getLogger(CodeGenerator.class);
+	
+	static final String newLine = System.getProperty("line.separator");
+	
 	public static String generateParamValueList(Method method) throws TypeNotSupportedException{
 		Class<?>[] classes = method.getParameterTypes();
 		ArrayList<Param> arr = new ArrayList<Param>();
@@ -38,26 +43,48 @@ public class CodeGenerator {
 		return op;
 	}
 	
+	public static String getClassName(String absClassName){
+		if(absClassName.indexOf('.') > 0){
+			logger.info("Its a package: "+absClassName);
+			return absClassName.substring(absClassName.lastIndexOf('.')+1, absClassName.length());
+		}else{
+			return absClassName;
+		}
+	}
+	
+	public static String getPackage(String absClassName){
+		if(absClassName.indexOf('.') > 0){			
+			return absClassName.substring(0, absClassName.lastIndexOf('.'));
+		}else{
+			return "";
+		}
+	}
+	
 	public static void generateCode(Class<?> dClass, String dir) throws IOException, TypeNotSupportedException, NotImplementedException{						
 		String fname = dClass.getName()+"Impl";			
 			
-		String path = dir + OSDetector.getPathSeperator() + fname + ".java";
+		String path = FSUtil.convertPackageToPath(dir, fname) + ".java";
 		
 		Method methods[] = dClass.getDeclaredMethods();
 		
-		String contentToWrite = ResourceLoader.readAsText("classImports.template") + addTypeImports(methods);//
+		String contentToWrite = "";
+		
+		if(fname.indexOf('.') > 0){
+			contentToWrite += "package " + getPackage(fname) + ";" + newLine;
+		}
+		contentToWrite += ResourceLoader.readAsText("classImports.template") + addTypeImports(methods);//
 				
 		/*if(!dClass.getPackage().getName().equals(""))			
 			contentToWrite = "import " + dClass.getPackage().getName() + ";\n\npublic class " + dClass.getName()+"Impl implements "+dClass.getName() + " {\n";
 		else*/
-			contentToWrite += "public class " + dClass.getName()+"Impl implements "+dClass.getName() + " {\n";
+			contentToWrite += "public class " + getClassName(dClass.getName()) + "Impl implements " + getClassName(dClass.getName()) + " {" + newLine;
 		
 		contentToWrite += ResourceLoader.readAsText("classBody.template").replace("{{%1}}", fname);
 		
 		for (Method method : methods) {
 			contentToWrite += generateMethod(method);			
 		}		
-		contentToWrite += "\n}";
+		contentToWrite += newLine + "}";
 		
 		FSUtil.writeToFile(path, contentToWrite);
 	}
@@ -69,7 +96,7 @@ public class CodeGenerator {
 			
 			for (Class<?> class1 : classes) {
 				if(imports.indexOf(class1.getName()) == -1 && class1.getName().indexOf('.') > 0 && !class1.getName().equals("com.marklogic.xcc.exceptions.RequestException")){
-					imports += "import " + class1.getName() + ";\n";					
+					imports += "import " + class1.getName() + ";" + newLine;					
 				}
 			}
 			
@@ -77,10 +104,10 @@ public class CodeGenerator {
 			for (Class<?> class1 : classes) {
 				if(class1.getName().startsWith("org.w3c.dom.")){
 					if(imports.indexOf(class1.getName()) == -1 && class1.getName().indexOf('.') > 0)
-						imports += "import " + class1.getName() + ";\n" + "import com.j2xq.util.XMLUtils;\n";
+						imports += "import " + class1.getName() + ";" + newLine + "import com.j2xq.util.XMLUtils;" + newLine;
 				} else if(!class1.getName().startsWith("java.lang.")){
 					if(imports.indexOf(class1.getName()) == -1 && class1.getName().indexOf('.') > 0)
-						imports += "import " + class1.getName() + ";\n";
+						imports += "import " + class1.getName() + ";" + newLine;
 				}				
 			}
 			
@@ -88,15 +115,15 @@ public class CodeGenerator {
 			
 			if(class1.getName().startsWith("org.w3c.dom.")){
 				if(imports.indexOf(class1.getName()) == -1)
-					imports += "import " + class1.getName() + ";\n" + "import com.j2xq.util.XMLUtils;\n";
+					imports += "import " + class1.getName() + ";" + newLine + "import com.j2xq.util.XMLUtils;\n";
 			} else{
 				if(imports.indexOf(class1.getName()) == -1 && class1.getName().indexOf('.') > 0)
-					imports += "import " + class1.getName() + ";\n";
+					imports += "import " + class1.getName() + ";" + newLine;
 			}
 			
 		}
 		
-		return imports+"\n\n";
+		return imports + newLine + newLine;
 	}
 	
 	public static String generateMethod(Method method) throws TypeNotSupportedException, IOException{
@@ -117,7 +144,7 @@ public class CodeGenerator {
 			}
 		}*/
 		
-		op += " {\n\t\ttry{\n";
+		op += " {"+ newLine +"\t\ttry{" + newLine;
 		/*int i=1;
 		Class<?>[] types = method.getParameterTypes();
 		for (Class<?> type : types) {
@@ -127,11 +154,11 @@ public class CodeGenerator {
 		op += generateParamValueList(method);
 		op += ResourceLoader.readAsText("methodBody.template");
 		if(!method.getReturnType().getName().equals("void")){
-			op += "\t\t\tXdmItem valueFromServer = resultSequence.itemAt(0);\n";
+			op += "\t\t\tXdmItem valueFromServer = resultSequence.itemAt(0);" + newLine;
 			op += "\t\t\treturn " + generateReturnTypecastedVariable(method.getReturnType().getName()) + ";";
 		}
-		op += "\n\t\t}\n\t\tcatch(Exception e)\n\t\t{\n\t\t\tthrow new GenericException(e);\n\t\t}";
-		op += "\n\t}\n\n";
+		op += newLine + "\t\t}" + newLine + "\t\tcatch(Exception e)" + newLine + "\t\t{" + newLine + "\t\t\tthrow new GenericException(e);" + newLine + "\t\t}";
+		op += newLine +  "\t}" + newLine + newLine;
 		
 		return op;
 	}

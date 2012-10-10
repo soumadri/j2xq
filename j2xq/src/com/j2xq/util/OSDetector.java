@@ -6,6 +6,10 @@ public class OSDetector {
 		return OSDetector.isWindows()?"\\":"/";
 	}
 	
+	public static String getPathSeperatorEscaped(){
+		return OSDetector.isWindows()?"\\\\":"/";
+	}
+	
 	public static boolean isWindows() {
 		 
 		String os = System.getProperty("os.name").toLowerCase();

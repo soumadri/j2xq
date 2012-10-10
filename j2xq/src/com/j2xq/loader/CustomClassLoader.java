@@ -6,7 +6,11 @@ import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
 
+import org.apache.log4j.Logger;
+
 public class CustomClassLoader extends ClassLoader {
+	
+	static final Logger logger = Logger.getLogger(CustomClassLoader.class);
 	
     public Class<?> loadClass(String name, String path) throws ClassNotFoundException, IOException {                
             String url = path;
@@ -23,8 +27,7 @@ public class CustomClassLoader extends ClassLoader {
 
             input.close();
 
-            byte[] classData = buffer.toByteArray();
-           
+            byte[] classData = buffer.toByteArray();           
             return defineClass(name,
                     classData, 0, classData.length);            
     }

@@ -60,7 +60,8 @@
             <classpath refid="class.path" />
         </manifestclasspath>
         <jar destfile="${dist.dir}/${project.name}.jar">
-            <fileset dir="${build.dir}" includes="**/*"/>        	
+            <fileset dir="${build.dir}" includes="**/*"/>
+            <fileset dir="${src.dir}" includes="**/*.properties"/>        	
         	<manifest>        			
 	    	        <attribute name="Main-Class" value="${main.class}" />
         			<attribute name="Class-Path" value="${jar.classpath}" />
@@ -84,16 +85,16 @@
     <target name="execj2xq" depends="copydemo">
         <echo>******Executing j2xq**</echo>
 	  	<exec executable="j2xq.bat" dir="${demo.exec.location}">
-	    	<arg value="Search.java"/>	    
+	    	<arg value="com\recap\infrastructure\ia\IScrapperConfiguration.java"/>	    
 	  	</exec>
 	</target>
 	
-    <!-- Deploy the xqy files to ML server -->
+    <!-- Deploy the xqy files to ML server 
 	<target name="copyxqy" depends="execj2xq">
         <echo>******Deploy the xqy files to ML server root ******${demo.ml.server.root}**</echo>        
         <copy todir="${demo.ml.server.root}">
             <fileset dir="${demo.xqy.location}" includes="*.xqy"/>
         </copy>        		
-    </target>
+    </target> -->
     
 </project>
