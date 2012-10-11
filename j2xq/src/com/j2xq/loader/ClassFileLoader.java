@@ -7,9 +7,20 @@ import org.apache.log4j.Logger;
 
 import com.j2xq.util.OSDetector;
 
+/**
+ * 
+ * @author soumadri
+ *
+ */
 public class ClassFileLoader {
 	static final Logger logger = Logger.getLogger(ClassFileLoader.class);
-	
+	/**
+	 * Loads all the class files from a base directory
+	 * @param baseDir The directory where all the .class files are present
+	 * @return The object of type Class representing respective classes
+	 * @throws ClassNotFoundException
+	 * @throws IOException
+	 */
 	public static Class<?>[] loadClasses(String baseDir) throws ClassNotFoundException, IOException{				
 		File folder = new File(baseDir);
 		File[] files = folder.listFiles(new ClassFileFilter());
@@ -35,6 +46,14 @@ public class ClassFileLoader {
 		return classes;
 	}
 	
+	/**
+	 * Loads the classes from a base directory residing in a package hierarchy
+	 * @param baseDir The directory containing the classes with/without packages
+	 * @param relFilePath The relative path representing the package. E.g. com\example\test
+	 * @return The object of type Class representing respective classes
+	 * @throws ClassNotFoundException
+	 * @throws IOException
+	 */
 	public static Class<?>[] loadClasses(String baseDir, String relFilePath) throws ClassNotFoundException, IOException{
 		String relDir = "";
 		

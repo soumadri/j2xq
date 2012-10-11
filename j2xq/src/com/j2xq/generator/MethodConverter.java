@@ -3,12 +3,29 @@ package com.j2xq.generator;
 import java.lang.reflect.Method;
 
 import com.j2xq.exception.TypeNotSupportedException;
-
+import com.j2xq.type.TypeConverter;
+/**
+ * Converts Java method signatures to XQuery function signature
+ * @author soumadri
+ *
+ */
 public class MethodConverter {
+	
+	/**
+	 * Converts camel case functions to XQuery style function names. E.g. getValue() to get-value() 
+	 * @param methodName Name of the method
+	 * @return XQuery style function name for the specified method name
+	 */
 	public static String convertName(String methodName){
 		return methodName.replaceAll("([A-Z])+", "-$1").toLowerCase();
 	}
 	
+	/**
+	 * Converts java method parameters to its XQuery equivalent. E.g. String val to $val as xs:string
+	 * @param method The reference to the java method
+	 * @return Comma separated XQuery function parameter list 
+	 * @throws TypeNotSupportedException
+	 */
 	public static String convertParameter(Method method) throws TypeNotSupportedException{
 		
 		Class<?>[] c = method.getParameterTypes();
@@ -16,7 +33,7 @@ public class MethodConverter {
 		String op = "";
 		int i = 1;
 		for (Class<?> class1 : c) {
-			op += "$param" + (i++) + " as " + convertType(class1.getName());
+			op += "$param" + (i++) + " as " + TypeConverter.convertJavaTypeToXQueryType(class1.getName());
 			
 			if (i <= c.length)
 				op += ", ";
@@ -24,48 +41,5 @@ public class MethodConverter {
 		
 		return op;
 	}
-	
-	public static String convertType(String type) throws TypeNotSupportedException{
-		if (type == "boolean") {
-			return "xs:boolean";
-		} else if(type == "byte") {
-			return "xs:byte";
-		} else if(type == "double") {
-			return "xs:double";
-		} else if(type == "float") {
-			return "xs:float";
-		} else if(type == "int") {
-			return "xs:int";
-		} else if(type == "long") {
-			return "xs:long";
-		} else if(type == "short") {
-			return "xs:short";
-		} else if(type == "java.lang.Boolean") {
-			return "xs:boolean";
-		} else if(type == "java.lang.Byte") {
-			return "xs:byte";
-		} else if(type == "java.lang.Float") {
-			return "xs:float";
-		} else if(type == "java.lang.Double") {
-			return "xs:double";
-		} else if(type == "java.lang.Integer") {
-			return "xs:int";
-		} else if(type == "java.long.Long") {
-			return "xs:long";
-		} else if(type == "java.lang.Short") {
-			return "xs:short";
-		} else if(type == "java.lang.String") {
-			return "xs:string";
-		} else if(type == "java.math.BigDecimal") {
-			return "xs:decimal";
-		} else if(type == "java.math.BigInteger") {
-			return "xs:integer";
-		} else if(type == "org.w3c.dom.Document") {
-			return "document-node(element(*, xs:untyped))";
-		} else if(type == "org.w3c.dom.DocumentFragment") {
-			return "document-node(element(*, xs:untyped))";
-		} else {
-			throw new TypeNotSupportedException(type);
-		}
-	}
+		
 }

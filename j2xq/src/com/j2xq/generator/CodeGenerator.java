@@ -1,301 +1,107 @@
 package com.j2xq.generator;
 
+import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.util.ArrayList;
 
 import org.apache.log4j.Logger;
 
 import com.j2xq.exception.NotImplementedException;
 import com.j2xq.exception.TypeNotSupportedException;
+import com.j2xq.loader.ClassFileLoader;
 import com.j2xq.util.FSUtil;
+import com.j2xq.util.OSDetector;
 import com.j2xq.util.ResourceLoader;
 
+/**
+ * Generates Java and XQuery code
+ * @author soumadri
+ *
+ */
 public class CodeGenerator {
 	static final Logger logger = Logger.getLogger(CodeGenerator.class);
 	
-	static final String newLine = System.getProperty("line.separator");
-	
-	public static String generateParamValueList(Method method) throws TypeNotSupportedException{
-		Class<?>[] classes = method.getParameterTypes();
-		ArrayList<Param> arr = new ArrayList<Param>();
-		int i=1;
-		for (Class<?> class1 : classes) {
-			Param p = new Param();
-			p.setType(MethodConverter.convertType(class1.getName()));
-			p.setValue(generateStringTypecastedVariable(class1.getName(), "param"+(i++)));
-			arr.add(p);
-		}
+	/**
+	 * Generates XQuery stubs and Java code and writes to the specified directory
+	 * @param fPath Directory path to write the files to
+	 * @throws ClassNotFoundException
+	 * @throws IOException
+	 * @throws TypeNotSupportedException
+	 * @throws NotImplementedException
+	 */
+	public static void generateCode(String fPath) throws ClassNotFoundException, IOException, TypeNotSupportedException, NotImplementedException{
+		//Cleanup the output directory
+		logger.debug("Cleaning output directories");
+		FSUtil.cleanupOpDir();
 		
-		return toXML(StubGenerator.getFunctionName(method),arr);
+		//Load the classes from disk
+		logger.debug("Loading classes from filesystem");
+		Class<?>[] classes = ClassFileLoader.loadClasses(System.getProperty("user.dir"),fPath);
+		
+		//Code output directory
+		logger.debug("Generating XQuery stubs");
+		String xqDir = FSUtil.getXQueryOutputDir();
+		
+		//Create the directories if it doesn't exist
+		logger.debug("Creating directories for XQuery stubs");
+		FSUtil.createDirectories(xqDir);
+		
+		//Generate the XQuery modules
+		generateXQYModules(classes, xqDir);
+		
+		//Java code output directory
+		logger.debug("Creating directories for Java classes");
+		String javaDir = FSUtil.getJavaOutputDir();
+		
+		//Generate the Java concrete classes
+		generateJavaConcreteClasses(classes, javaDir);
+		
 	}
 	
-	public static String toXML(String funcName, ArrayList<Param> params){
-		String op = "\t\t\tString params = \"<method name=\\"+"\""+funcName+"\\"+"\"><params>";
+	/**
+	 * Generates XQuery stubs for the input Class objects and saves files to disk
+	 * @param classes Class objects
+	 * @param dir Directory to write the files to
+	 * @throws IOException
+	 * @throws TypeNotSupportedException
+	 */
+	private static void generateXQYModules(Class<?>[] classes, String dir) throws IOException, TypeNotSupportedException{
+		String prolog = "";
 		
-		for (Param param : params) {
-			op += "<param type=\\"+"\""+param.getType()+"\\"+"\">\"+"+param.getValue()+"+\"</param>";
-		}
+		//Create stubs for each interface
+		logger.debug("Generating XQuery prologs");
+		for (Class<?> dClass : classes) {
+			prolog += XQueryStubGenerator.generateProlog(dClass, XQueryStubGenerator.generateStub(dClass, dir));				
+		}						
 		
-		op += "</params></method>\";";
+		//Create main module for XQY
+		logger.debug("Generating XQuery main module");
+		String mainXQFile = dir + OSDetector.getPathSeperator() + "xq2j-main.xqy";
 		
-		return op;
+		//Write the prolog to the main XQY
+		logger.debug("Writing XQuery main module to filesystem");
+		FSUtil.writeToFile(mainXQFile, prolog);
+					
+		FSUtil.writeToFile(mainXQFile, ResourceLoader.readAsText("xqmain.template"));
 	}
 	
-	public static String getClassName(String absClassName){
-		if(absClassName.indexOf('.') > 0){
-			logger.info("Its a package: "+absClassName);
-			return absClassName.substring(absClassName.lastIndexOf('.')+1, absClassName.length());
-		}else{
-			return absClassName;
-		}
-	}
-	
-	public static String getPackage(String absClassName){
-		if(absClassName.indexOf('.') > 0){			
-			return absClassName.substring(0, absClassName.lastIndexOf('.'));
-		}else{
-			return "";
-		}
-	}
-	
-	public static void generateCode(Class<?> dClass, String dir) throws IOException, TypeNotSupportedException, NotImplementedException{						
-		String fname = dClass.getName()+"Impl";			
-			
-		String path = FSUtil.convertPackageToPath(dir, fname) + ".java";
+	/**
+	 * Generates the Java concrete classes
+	 * @param classes Class objects
+	 * @param javaDir Directory to write the files to
+	 * @throws IOException
+	 * @throws TypeNotSupportedException
+	 * @throws NotImplementedException
+	 */
+	private static void generateJavaConcreteClasses(Class<?>[] classes, String javaDir) throws IOException, TypeNotSupportedException, NotImplementedException{				
+		//Create the directories if it doesn't exist
+		File fJavaDir = new File(javaDir);			
+		if(!fJavaDir.exists())
+			fJavaDir.mkdirs();
 		
-		Method methods[] = dClass.getDeclaredMethods();
-		
-		String contentToWrite = "";
-		
-		if(fname.indexOf('.') > 0){
-			contentToWrite += "package " + getPackage(fname) + ";" + newLine;
-		}
-		contentToWrite += ResourceLoader.readAsText("classImports.template") + addTypeImports(methods);//
-				
-		/*if(!dClass.getPackage().getName().equals(""))			
-			contentToWrite = "import " + dClass.getPackage().getName() + ";\n\npublic class " + dClass.getName()+"Impl implements "+dClass.getName() + " {\n";
-		else*/
-			contentToWrite += "public class " + getClassName(dClass.getName()) + "Impl implements " + getClassName(dClass.getName()) + " {" + newLine;
-		
-		contentToWrite += ResourceLoader.readAsText("classBody.template").replace("{{%1}}", fname);
-		
-		for (Method method : methods) {
-			contentToWrite += generateMethod(method);			
-		}		
-		contentToWrite += newLine + "}";
-		
-		FSUtil.writeToFile(path, contentToWrite);
-	}
-	
-	public static String addTypeImports(Method methods[]){
-		String imports = "";
-		for (Method method : methods) {
-			Class<?>[] classes = method.getExceptionTypes();
-			
-			for (Class<?> class1 : classes) {
-				if(imports.indexOf(class1.getName()) == -1 && class1.getName().indexOf('.') > 0 && !class1.getName().equals("com.marklogic.xcc.exceptions.RequestException")){
-					imports += "import " + class1.getName() + ";" + newLine;					
-				}
-			}
-			
-			classes = method.getParameterTypes();
-			for (Class<?> class1 : classes) {
-				if(class1.getName().startsWith("org.w3c.dom.")){
-					if(imports.indexOf(class1.getName()) == -1 && class1.getName().indexOf('.') > 0)
-						imports += "import " + class1.getName() + ";" + newLine + "import com.j2xq.util.XMLUtils;" + newLine;
-				} else if(!class1.getName().startsWith("java.lang.")){
-					if(imports.indexOf(class1.getName()) == -1 && class1.getName().indexOf('.') > 0)
-						imports += "import " + class1.getName() + ";" + newLine;
-				}				
-			}
-			
-			Class<?> class1 = method.getReturnType();
-			
-			if(class1.getName().startsWith("org.w3c.dom.")){
-				if(imports.indexOf(class1.getName()) == -1)
-					imports += "import " + class1.getName() + ";" + newLine + "import com.j2xq.util.XMLUtils;\n";
-			} else{
-				if(imports.indexOf(class1.getName()) == -1 && class1.getName().indexOf('.') > 0)
-					imports += "import " + class1.getName() + ";" + newLine;
-			}
-			
-		}
-		
-		return imports + newLine + newLine;
-	}
-	
-	public static String generateMethod(Method method) throws TypeNotSupportedException, IOException{
-		String op = "\t" + getModifier(method.getModifiers()) + " " + method.getReturnType().getSimpleName() + " " + method.getName() + generateArgumentList(method); 
-		
-		//Check for 'throws' declarations
-		/*if(method.getExceptionTypes().length > 0){
-			op += " throws ";
-			Class<?>[] classes = method.getExceptionTypes();
-			
-			int i=0;
-			for (Class<?> class1 : classes) {
-				op += class1.getSimpleName();
-				if(i < classes.length-1) {
-					op += ", ";
-					i++;
-				}
-			}
-		}*/
-		
-		op += " {"+ newLine +"\t\ttry{" + newLine;
-		/*int i=1;
-		Class<?>[] types = method.getParameterTypes();
-		for (Class<?> type : types) {
-			op += generateTypecastedVariable(type.getName(), "param"+(i++));
-		}*/
-		
-		op += generateParamValueList(method);
-		op += ResourceLoader.readAsText("methodBody.template");
-		if(!method.getReturnType().getName().equals("void")){
-			op += "\t\t\tXdmItem valueFromServer = resultSequence.itemAt(0);" + newLine;
-			op += "\t\t\treturn " + generateReturnTypecastedVariable(method.getReturnType().getName()) + ";";
-		}
-		op += newLine + "\t\t}" + newLine + "\t\tcatch(Exception e)" + newLine + "\t\t{" + newLine + "\t\t\tthrow new GenericException(e);" + newLine + "\t\t}";
-		op += newLine +  "\t}" + newLine + newLine;
-		
-		return op;
-	}
-	
-	public static String generateArgumentList(Method method){
-		Class<?>[] classes = method.getParameterTypes();
-		
-		String op = "(";
-		int i=1;
-		for (Class<?> class1 : classes) {
-			op += class1.getSimpleName() + " param"+(i++);
-			
-			if(i<=classes.length)
-				op += ", ";
-		}
-		op += ")";
-		
-		return op;
-	}
-	
-	public static String generateStringTypecastedVariable(String type, String var) throws TypeNotSupportedException{
-		if (type == "boolean") {
-			return "Boolean.toString("+var+")";
-		} else if(type == "byte") {
-			return "";	//NEED TO CONVERT
-		} else if(type == "double") {
-			return "Double.toString("+var+")";
-		} else if(type == "float") {
-			return "Float.toString("+var+")";
-		} else if(type == "int") {
-			return "Integer.toString("+var+")";
-		} else if(type == "long") {
-			return "Long.toString("+var+")";
-		} else if(type == "short") {
-			return "Short.toString("+var+")";
-		} else if(type == "java.lang.Boolean") {
-			return var+".toString()";
-		} else if(type == "java.lang.Byte") {
-			return var+".toString()";
-		} else if(type == "java.lang.Float") {
-			return var+".toString()";
-		} else if(type == "java.lang.Double") {
-			return var+".toString()";
-		} else if(type == "java.lang.Integer") {
-			return var+".toString()";
-		} else if(type == "java.long.Long") {
-			return var+".toString()";
-		} else if(type == "java.lang.Short") {
-			return var+".toString()";
-		} else if(type == "java.lang.String") {
-			return var;
-		} else if(type == "java.math.BigDecimal") {
-			return var+".toString()";
-		} else if(type == "java.math.BigInteger") {
-			return var+".toString()";
-		} else if(type == "org.w3c.dom.Document") {
-			return "XMLUtils.toString("+var+")";
-		} else if(type == "org.w3c.dom.DocumentFragment") {
-			return "XMLUtils.toString("+var+")";
-		} else {
-			throw new TypeNotSupportedException(type);
-		}
-	}
-
-	public static String generateReturnTypecastedVariable(String type) throws TypeNotSupportedException{
-		if (type == "boolean") {
-			return "Boolean.valueOf(valueFromServer.asString())";
-		} else if(type == "byte") {
-			return "";	//NEED TO CONVERT
-		} else if(type == "double") {
-			return "Double.valueOf(valueFromServer.asString())";
-		} else if(type == "float") {
-			return "Float.valueOf(valueFromServer.asString())";
-		} else if(type == "int") {
-			return "Integer.valueOf(valueFromServer.asString())";
-		} else if(type == "long") {
-			return "Long.valueOf(valueFromServer.asString())";
-		} else if(type == "short") {
-			return "Short.valueOf(valueFromServer.asString())";
-		} else if(type == "java.lang.Boolean") {
-			return "new Boolean(valueFromServer.asString())";
-		} else if(type == "java.lang.Byte") {
-			return "new Byte(valueFromServer.asString())";
-		} else if(type == "java.lang.Float") {
-			return "new Float(valueFromServer.asString())";
-		} else if(type == "java.lang.Double") {
-			return "new Double(valueFromServer.asString())";
-		} else if(type == "java.lang.Integer") {
-			return "new Integer(valueFromServer.asString())";
-		} else if(type == "java.long.Long") {
-			return "new Long(valueFromServer.asString())";
-		} else if(type == "java.lang.Short") {
-			return "new Short(valueFromServer.asString())";
-		} else if(type == "java.lang.String") {
-			return "valueFromServer.asString()";
-		} else if(type == "java.math.BigDecimal") {
-			return "new java.math.BigDecimal(valueFromServer.asString())";
-		} else if(type == "java.math.BigInteger") {
-			return "new java.math.BigInteger(valueFromServer.asString())";
-		} else if(type == "org.w3c.dom.Document") {
-			return "XMLUtils.fromString(valueFromServer.asString())";
-		} else if(type == "org.w3c.dom.DocumentFragment") {
-			return "XMLUtils.fromString(valueFromServer.asString())";
-		} else {
-			throw new TypeNotSupportedException(type);
-		}
-	}
-	
-	public static String getModifier(int modifier){
-		switch (modifier) {
-		case Modifier.ABSTRACT:
-			return "abstract";
-		case Modifier.FINAL:
-			return "final";
-		case Modifier.INTERFACE:
-			return "interface";
-		case Modifier.NATIVE:
-			return "native";
-		case Modifier.PRIVATE:
-			return "private";
-		case Modifier.PROTECTED:
-			return "protected";
-		case Modifier.PUBLIC:
-			return "public";
-		case Modifier.STATIC:
-			return "static";
-		case Modifier.STRICT:
-			return "strict";
-		case Modifier.SYNCHRONIZED:
-			return "synchronized";
-		case Modifier.TRANSIENT:
-			return "transient";
-		case Modifier.VOLATILE:
-			return "volatile";
-
-		default:
-			return "public";			
+		//Create concrete class for each interface
+		logger.debug("Creating Java code");
+		for (Class<?> dClass : classes) {
+			JavaCodeGenerator.generateCode(dClass, javaDir);
 		}
 	}
 }

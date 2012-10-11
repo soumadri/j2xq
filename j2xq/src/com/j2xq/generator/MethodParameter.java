@@ -1,6 +1,11 @@
 package com.j2xq.generator;
 
-public class Param {
+/**
+ * Holds a function parameter
+ * @author soumadri
+ *
+ */
+public class MethodParameter {
 	String type,value;
 
 	public String getType() {

@@ -8,10 +8,23 @@ import java.net.URLConnection;
 
 import org.apache.log4j.Logger;
 
+/**
+ * Class loader from filesystem
+ * @author soumadri
+ *
+ */
 public class CustomClassLoader extends ClassLoader {
 	
 	static final Logger logger = Logger.getLogger(CustomClassLoader.class);
 	
+	/**
+	 * Loads a class file into java type from filesystem
+	 * @param name The given name of the class
+	 * @param path Path to the .class file in the filesystem
+	 * @return An object of type Class representing the loaded class
+	 * @throws ClassNotFoundException
+	 * @throws IOException
+	 */
     public Class<?> loadClass(String name, String path) throws ClassNotFoundException, IOException {                
             String url = path;
             URL myUrl = new URL(url);
