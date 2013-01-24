@@ -8,14 +8,15 @@ public class Main {
 	static final Logger logger = Logger.getLogger(Main.class);
 	
 	public static void main(String[] args) {
-		try {
+		try {			
 			if(args.length < 1){
-				CodeGenerator.generateCode(args[0]);
-			} else{
 				System.out.println("Argument expected. Please provide the path to the interface.");
+			} else{				
+				CodeGenerator.generateCode(args[0]);
 			}
 		} catch (Exception e) {
-			logger.error(e);
+			//logger.error(e);
+			e.printStackTrace();
 		}
 	}
 }

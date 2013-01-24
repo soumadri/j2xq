@@ -48,6 +48,6 @@ public class XMLUtils {
 	    factory.setNamespaceAware(true);
 	    DocumentBuilder builder = factory.newDocumentBuilder();
 
-	    return builder.parse(new ByteArrayInputStream(xml.getBytes()));		
+	    return builder.parse(new ByteArrayInputStream(xml.getBytes("utf-8")));		
 	}
 }
