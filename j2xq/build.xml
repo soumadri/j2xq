@@ -89,12 +89,12 @@
 	  	</exec>
 	</target>
 	
-    <!-- Deploy the xqy files to ML server 
+    <!-- Deploy the xqy files to ML server -->
 	<target name="copyxqy" depends="execj2xq">
         <echo>******Deploy the xqy files to ML server root ******${demo.ml.server.root}**</echo>        
         <copy todir="${demo.ml.server.root}">
             <fileset dir="${demo.xqy.location}" includes="*.xqy"/>
         </copy>        		
-    </target> -->
+    </target> 
     
 </project>
