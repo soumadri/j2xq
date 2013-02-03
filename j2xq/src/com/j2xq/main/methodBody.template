@@ -1,6 +1,6 @@
 		
 			ModuleInvoke xdbcRequest = session.newModuleInvoke(null);
 			xdbcRequest.setNewStringVariable("params", params);
-			xdbcRequest.setModuleUri("xq2j-main.xqy");
+			xdbcRequest.setModuleUri("j2xq-main.xqy");
 			ResultSequence resultSequence = session.submitRequest(xdbcRequest);
 		

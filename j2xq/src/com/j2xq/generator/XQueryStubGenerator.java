@@ -7,6 +7,7 @@ import java.lang.reflect.Method;
 import com.j2xq.annotation.J2XQ;
 import com.j2xq.exception.TypeNotSupportedException;
 import com.j2xq.type.TypeConverter;
+import com.j2xq.type.TypeUtils;
 import com.j2xq.util.FSUtil;
 import com.j2xq.util.OSDetector;
 
@@ -55,8 +56,10 @@ public class XQueryStubGenerator {
 		
 		signature += ")";
 		
-		if(method.getReturnType().getName() != "void")
-			signature += " as " + TypeConverter.convertJavaTypeToXQueryType(method.getReturnType().getName());
+		if(method.getReturnType().getName() != "void"){
+			Class<?> class1 = method.getReturnType();			
+			signature += " as " + TypeConverter.convertJavaTypeToXQueryType(TypeUtils.resolveType(class1));
+		}
 		
 		signature += "\n{\n\"\"\n};\n";
 		

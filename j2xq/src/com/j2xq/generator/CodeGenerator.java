@@ -73,9 +73,9 @@ public class CodeGenerator {
 			prolog += XQueryStubGenerator.generateProlog(dClass, XQueryStubGenerator.generateStub(dClass, dir));				
 		}						
 		
-		//Create main module for XQY
+		//Create main bridging module for XQY
 		logger.debug("Generating XQuery main module");
-		String mainXQFile = dir + OSDetector.getPathSeperator() + "xq2j-main.xqy";
+		String mainXQFile = dir + OSDetector.getPathSeperator() + "j2xq-main.xqy";
 		
 		//Write the prolog to the main XQY
 		logger.debug("Writing XQuery main module to filesystem");

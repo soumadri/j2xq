@@ -10,6 +10,7 @@ import org.apache.log4j.Logger;
 import com.j2xq.exception.NotImplementedException;
 import com.j2xq.exception.TypeNotSupportedException;
 import com.j2xq.type.TypeConverter;
+import com.j2xq.type.TypeUtils;
 import com.j2xq.util.FSUtil;
 import com.j2xq.util.ResourceLoader;
 
@@ -34,8 +35,12 @@ public class JavaCodeGenerator {
 		int i=1;
 		for (Class<?> class1 : classes) {
 			MethodParameter p = new MethodParameter();
-			p.setType(TypeConverter.convertJavaTypeToXQueryType(class1.getName()));
-			p.setValue(TypeConverter.generateTypecastedVariable(class1.getName(), "param"+(i++)));
+			String typeName = class1.getName();
+			
+			//Check whether its an array type. E.g. byte[]
+			typeName = (typeName.startsWith("["))?class1.getComponentType().getName():class1.getName();
+			p.setType(TypeConverter.convertJavaTypeToXQueryType(typeName));			
+			p.setValue(TypeConverter.generateTypecastedVariable(typeName, "param"+(i++)));
 			arr.add(p);
 		}
 		
@@ -170,6 +175,8 @@ public class JavaCodeGenerator {
 	 * @throws IOException
 	 */
 	public static String generateMethod(Method method) throws TypeNotSupportedException, IOException{
+		Class<?> class1 = method.getReturnType();		
+		
 		String op = "\t" + getModifier(method.getModifiers()) + " " + method.getReturnType().getSimpleName() + " " + method.getName() + generateArgumentList(method); 
 				
 		op += " {"+ newLine +"\t\ttry{" + newLine;		
@@ -177,7 +184,7 @@ public class JavaCodeGenerator {
 		op += ResourceLoader.readAsText("methodBody.template");
 		if(!method.getReturnType().getName().equals("void")){
 			op += "\t\t\tXdmItem valueFromServer = resultSequence.itemAt(0);" + newLine;
-			op += "\t\t\treturn " + TypeConverter.generateReturnTypecastedVariable(method.getReturnType().getName()) + ";";
+			op += "\t\t\treturn " + TypeConverter.generateReturnTypecastedVariable(TypeUtils.resolveType(class1)) + ";";
 		}
 		op += newLine + "\t\t}" + newLine + "\t\tcatch(Exception e)" + newLine + "\t\t{" + newLine + "\t\t\tthrow new GenericException(e);" + newLine + "\t\t}";
 		op += newLine +  "\t}" + newLine + newLine;

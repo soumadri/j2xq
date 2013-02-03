@@ -10,11 +10,13 @@ let $p := for $each in $paramXml/method/params/param
                 fn:concat('"',$each/text(),'"')
             else if($each/@type="xs:boolean") then
                 fn:concat('fn:',$each/text(),'()')
+			else if($each/@type="xs:hexBinary") then
+                fn:concat('xs:hexBinary("',$each/text(),'")')
             else if($each/@type="document-node(element(*, xs:untyped))") then
                 fn:concat('document{',xdmp:quote($each/*),'}')             
             else
                 $each/text()
-          )          
+          ) 		 
 return 
 (    
     let $query := if(fn:empty($p)) then
@@ -24,7 +26,7 @@ return
 				  else
 				  (
 						fn:concat('declare option xdmp:update "true"; declare variable $function external; xdmp:apply($function,',fn:string-join($p,","),')')
-				  )	
+				  )		
 	return
 		xdmp:eval($query,(xs:QName('function'),$function))      
 )

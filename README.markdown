@@ -1,5 +1,5 @@
-j2xq for MarkLogic
-==================
+j2xq for MarkLogic (v2.0)
+=========================
 
 XQuery function binder for java. It allows you to call XQuery functions directly from Java, as if it were native functions.
 It basically is a code generator, which takes java interfaces as input and generates concrete java classes and respective xquery stubs. This makes it easy for java programmers to call xquery functions without knowing anything about XCC. 
@@ -13,15 +13,15 @@ Features
 * Calling xquery functions from java allows easy unit testing of xquery functions by using testing frameworks like JUnit
 * Follows convention over configuration, so getting started with j2xq takes very little time
 * Supports xquery module namespace and function name customization through Java Annotations
-* Runtime exception handling to avoid 'throws' declarations in the input interaces
+* Runtime exception handling to avoid 'throws' declarations in the input interfaces
 
-How To
-------
+Quickstart
+-----------
 
-1. Download the repository as zip
-2. Go into the 'j2xq' directory
-3. Execute the ANT script 'build.xml'
-4. Copy the java interfaces (.java files) to 'j2xq' directory
+1. Download the 'j2xq.zip' from Downloads setion
+2. Create a directory called 'j2xq'
+3. Unzip the package into 'j2xq' directory
+4. Copy your java interfaces (.java files) to 'j2xq' directory
 5. Run 'j2xq *.java' (w/o quotes) command from command line 
 6. This would generate the java and xquery code in the 'output/j' and 'output/xq' directories respectively
 7. Copy the java interfaces (defined by you) and the generated java classes from 'output/j' to the java project for the application you are building
@@ -29,9 +29,7 @@ How To
 
 Voila! Just add the body to the xquery functions and call the respective methods from generated java concrete classes (Impls).
 
-For more information jump to the [WiKi](https://github.com/soumadri/j2xq/wiki)
-
-Reference:
-[Building Bridges from Java to XQuery](http://www.xmlprague.cz/2012/files/xmlprague-2012-proceedings.pdf#page=197) by [Charles Foster](http://www.cfoster.net/)
+Inspired by:
+[Building Bridges from Java to XQuery](http://archive.xmlprague.cz/2012/files/xmlprague-2012-proceedings.pdf#page=185) by [Charles Foster](http://www.cfoster.net/)
 
 This work is under MIT license.

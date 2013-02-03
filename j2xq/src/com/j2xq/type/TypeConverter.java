@@ -14,7 +14,7 @@ public class TypeConverter {
 		if (type == "boolean") {
 			return "xs:boolean";
 		} else if(type == "byte") {
-			return "xs:byte";
+			return "xs:hexBinary";
 		} else if(type == "double") {
 			return "xs:double";
 		} else if(type == "float") {
@@ -65,7 +65,8 @@ public class TypeConverter {
 		if (type == "boolean") {
 			return "Boolean.toString("+var+")";
 		} else if(type == "byte") {
-			return "";	//NEED TO CONVERT
+			System.out.println("BYTE DETECTED");			
+			return "Hex.encodeHexString("+var+")";
 		} else if(type == "double") {
 			return "Double.toString("+var+")";
 		} else if(type == "float") {
@@ -115,7 +116,7 @@ public class TypeConverter {
 		if (type == "boolean") {
 			return "Boolean.valueOf(valueFromServer.asString())";
 		} else if(type == "byte") {
-			return "";	//NEED TO CONVERT
+			return "Hex.decodeHex(valueFromServer.asString().toCharArray())";
 		} else if(type == "double") {
 			return "Double.valueOf(valueFromServer.asString())";
 		} else if(type == "float") {

@@ -4,6 +4,7 @@ import java.lang.reflect.Method;
 
 import com.j2xq.exception.TypeNotSupportedException;
 import com.j2xq.type.TypeConverter;
+import com.j2xq.type.TypeUtils;
 /**
  * Converts Java method signatures to XQuery function signature
  * @author soumadri
@@ -33,7 +34,7 @@ public class MethodConverter {
 		String op = "";
 		int i = 1;
 		for (Class<?> class1 : c) {
-			op += "$param" + (i++) + " as " + TypeConverter.convertJavaTypeToXQueryType(class1.getName());
+			op += "$param" + (i++) + " as " + TypeConverter.convertJavaTypeToXQueryType(TypeUtils.resolveType(class1));
 			
 			if (i <= c.length)
 				op += ", ";
