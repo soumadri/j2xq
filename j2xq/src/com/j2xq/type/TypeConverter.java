@@ -64,8 +64,7 @@ public class TypeConverter {
 	public static String generateTypecastedVariable(String type, String var) throws TypeNotSupportedException{
 		if (type == "boolean") {
 			return "Boolean.toString("+var+")";
-		} else if(type == "byte") {
-			System.out.println("BYTE DETECTED");			
+		} else if(type == "byte") {					
 			return "Hex.encodeHexString("+var+")";
 		} else if(type == "double") {
 			return "Double.toString("+var+")";

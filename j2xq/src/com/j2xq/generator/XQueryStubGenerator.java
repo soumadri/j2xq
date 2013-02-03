@@ -92,9 +92,9 @@ public class XQueryStubGenerator {
 	 * @throws TypeNotSupportedException
 	 */
 	public static String generateStub(Class<?> dClass, String dir) throws IOException, TypeNotSupportedException{
-		String fname = MethodConverter.convertName(dClass.getName());
-		fname = fname.startsWith("-")?fname.substring(1) + ".xqy" :fname + ".xqy";
-			
+		String fname = MethodConverter.convertName(dClass.getName());		
+		fname = fname.indexOf("-")>-1?fname.substring(fname.indexOf("-")+1) + ".xqy" :fname + ".xqy";//fname.startsWith("-")?fname.substring(1) + ".xqy" :fname + ".xqy";
+		
 		String path = dir + OSDetector.getPathSeperator() + fname;
 		
 		Method methods[] = dClass.getMethods();
