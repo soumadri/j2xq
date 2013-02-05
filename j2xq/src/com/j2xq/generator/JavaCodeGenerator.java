@@ -115,7 +115,7 @@ public class JavaCodeGenerator {
 				
 		contentToWrite += "public class " + getClassName(dClass.getName()) + "Impl implements " + getClassName(dClass.getName()) + " {" + newLine;
 		
-		contentToWrite += ResourceLoader.readAsText("classBody.template").replace("{{%1}}", fname);
+		contentToWrite += ResourceLoader.readAsText("classBody.template").replace("{{%1}}", getClassName(fname));
 		
 		for (Method method : methods) {
 			contentToWrite += generateMethod(method);			
