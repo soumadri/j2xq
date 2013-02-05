@@ -106,7 +106,7 @@ public class JavaCodeGenerator {
 		
 		Method methods[] = dClass.getDeclaredMethods();
 		
-		String contentToWrite = "";
+		String contentToWrite = ResourceLoader.readAsText("licenseJava.template");
 		
 		if(fname.indexOf('.') > 0){
 			contentToWrite += "package " + getPackage(fname) + ";" + newLine;
@@ -143,25 +143,33 @@ public class JavaCodeGenerator {
 			
 			classes = method.getParameterTypes();
 			for (Class<?> class1 : classes) {
-				if(class1.getName().startsWith("org.w3c.dom.")){
-					if(imports.indexOf(class1.getName()) == -1 && class1.getName().indexOf('.') > 0)
-						imports += "import " + class1.getName() + ";" + newLine + "import com.j2xq.util.XMLUtils;" + newLine;
-				} else if(!class1.getName().startsWith("java.lang.")){
-					if(imports.indexOf(class1.getName()) == -1 && class1.getName().indexOf('.') > 0)
-						imports += "import " + class1.getName() + ";" + newLine;
-				}				
+				String type = class1.getName();
+				
+				if(type.equals("[B")){ //Byte array					
+					if(imports.indexOf("import org.apache.commons.codec.binary.Hex;") == -1)
+						imports += "import org.apache.commons.codec.binary.Hex;" + newLine;
+				} else if(type.startsWith("org.w3c.dom.")){
+					if(imports.indexOf(type) == -1 && type.indexOf('.') > 0)
+						imports += "import " + type + ";" + newLine + "import com.j2xq.util.XMLUtils;" + newLine;
+				} else if(!type.startsWith("java.lang.")){					
+					if(imports.indexOf(type) == -1 && type.indexOf('.') > 0)
+						imports += "import " + type + ";" + newLine;
+				}  				
 			}
 			
 			Class<?> class1 = method.getReturnType();
+			String type = class1.getName();
 			
-			if(class1.getName().startsWith("org.w3c.dom.")){
-				if(imports.indexOf(class1.getName()) == -1)
-					imports += "import " + class1.getName() + ";" + newLine + "import com.j2xq.util.XMLUtils;\n";
-			} else{
-				if(imports.indexOf(class1.getName()) == -1 && class1.getName().indexOf('.') > 0)
-					imports += "import " + class1.getName() + ";" + newLine;
-			}
-			
+			if(type.equals("[B")){ //Byte array
+				if(imports.indexOf("import org.apache.commons.codec.binary.Hex;") == -1)
+					imports += "import org.apache.commons.codec.binary.Hex;" + newLine;					
+			} else if(type.startsWith("org.w3c.dom.")){
+				if(imports.indexOf(type) == -1)
+					imports += "import " + type + ";" + newLine + "import com.j2xq.util.XMLUtils;" + newLine;
+			} else if(!type.startsWith("java.lang.")){
+				if(imports.indexOf(type) == -1 && class1.getName().indexOf('.') > 0)
+					imports += "import " + type + ";" + newLine;
+			}			
 		}
 		
 		return imports + newLine + newLine;

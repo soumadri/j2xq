@@ -10,6 +10,7 @@ import com.j2xq.type.TypeConverter;
 import com.j2xq.type.TypeUtils;
 import com.j2xq.util.FSUtil;
 import com.j2xq.util.OSDetector;
+import com.j2xq.util.ResourceLoader;
 
 /**
  * Responsible to generate the XQuery stubs
@@ -24,14 +25,15 @@ public class XQueryStubGenerator {
 	 * @param class1 The class object (interface) for which the import statement has to be generated
 	 * @param ns Optional namespace the module belongs to. Empty string will result in 'local' namespace
 	 * @return The import module statement
+	 * @throws IOException 
 	 */
-	public static String generateProlog(Class<?> class1,String ns){
+	public static String generateProlog(Class<?> class1,String ns) throws IOException{
 		String tmpName = MethodConverter.convertName(class1.getSimpleName());
 		String nsPrefix = getNamespacePrefix(class1).equals("")?(tmpName.startsWith("-")?tmpName.substring(1) : tmpName):getNamespacePrefix(class1);
 		String fname = tmpName.startsWith("-")?tmpName.substring(1) : tmpName;
 		nsPrefix = nsPrefix.equals("")?"local":nsPrefix;		
 		
-		String op = "import module namespace " + nsPrefix + " = \"" + ns + "\" at \"" + fname + ".xqy\";" + newLine;
+		String op = ResourceLoader.readAsText("licenseXQ.template") + newLine + "import module namespace " + nsPrefix + " = \"" + ns + "\" at \"" + fname + ".xqy\";" + newLine;
 		
 		return op;
 	}
