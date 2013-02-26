@@ -3,30 +3,29 @@ declare variable $params as xs:string external;
 
 let $paramXml := xdmp:unquote($params)
 let $function := xdmp:function(xs:QName(xs:string($paramXml/method/@name)))
-let $p := for $each in $paramXml/method/params/param
-          return
-          (
-            if ($each/@type="xs:string") then
-                fn:concat('"',$each/text(),'"')
-            else if($each/@type="xs:boolean") then
-                fn:concat('fn:',$each/text(),'()')
-			else if($each/@type="xs:hexBinary") then
-                fn:concat('xs:hexBinary("',$each/text(),'")')
-            else if($each/@type="document-node(element(*, xs:untyped))") then
-                fn:concat('document{',xdmp:quote($each/*),'}')             
-            else
-                $each/text()
-          ) 		 
 return 
 (    
-    let $query := if(fn:empty($p)) then
-				  (
-						fn:concat('declare option xdmp:update "true"; declare variable $function external; xdmp:apply($function)')
-				  )
-				  else
-				  (
-						fn:concat('declare option xdmp:update "true"; declare variable $function external; xdmp:apply($function,',fn:string-join($p,","),')')
-				  )		
-	return
-		xdmp:eval($query,(xs:QName('function'),$function))      
+      if(fn:not($paramXml/method/params/param)) then (: If there are no parameters to the function :)
+	  (
+			let $query := fn:concat('declare option xdmp:update "true"; declare variable $function external; xdmp:apply($function)')
+			return xdmp:eval($query,(xs:QName('function'),$function)) 
+	  )
+	  else
+	  (
+			let $param-names-in-call := for $each at $pos in $paramXml/method/params/param
+			                            return fn:concat("$p",$pos)
+			let $param-names-in-declare := for $each at $pos in $paramXml/method/params/param
+			                               return fn:concat("declare variable $p",$pos," external;")   
+			let $param-names-in-eval := for $each at $pos in $paramXml/method/params/param
+			                            return 
+			                            (
+			                              if($each/@type="document-node(element(*, xs:untyped))") then
+			                                fn:concat('xs:QName("p',$pos,'"),document{$paramXml/method/params/param[',$pos,']/node()}')                                                                
+			                              else
+			                                fn:concat('xs:QName("p',$pos,'"),$paramXml/method/params/param[',$pos,']/node()')
+			                            )
+			let $query := fn:concat('declare option xdmp:update "true"; declare variable $function external; ',fn:string-join($param-names-in-declare," "),' xdmp:apply($function,',fn:string-join($param-names-in-call,", "),')')                             
+			let $main-query := fn:concat('declare variable $query external; declare variable $function external; declare variable $paramXml external; xdmp:eval($query,(xs:QName("function"),$function,',fn:string-join($param-names-in-eval,', '),'))')
+			return xdmp:eval($main-query,(xs:QName("query"),$query,xs:QName("function"),$function,xs:QName("paramXml"),$paramXml))
+	  )				     
 )
