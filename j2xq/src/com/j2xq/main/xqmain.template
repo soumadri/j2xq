@@ -3,6 +3,23 @@ declare variable $params as xs:string external;
 
 let $paramXml := xdmp:unquote($params)
 let $function := xdmp:function(xs:QName(xs:string($paramXml/method/@name)))
+<<<<<<< HEAD
+=======
+let $p := for $each in $paramXml/method/params/param
+          return
+          (
+            if ($each/@type="xs:string") then
+                fn:concat('"',$each/text(),'"')
+            else if($each/@type="xs:boolean") then
+                fn:concat('fn:',$each/text(),'()')
+			else if($each/@type="xs:hexBinary") then
+                fn:concat('xs:hexBinary("',$each/text(),'")')
+            else if($each/@type="document-node(element(*, xs:untyped))") then                
+                fn:concat('document{',xdmp:quote($each/*,<options xmlns="xdmp:quote"><use-character-maps>xdmp:sgml-entities-normal</use-character-maps></options>),'}')                          
+            else
+                $each/text()
+          ) 		 
+>>>>>>> branch 'master' of https://soumadri@bitbucket.org/soumadri/j2xq.git
 return 
 (    
       if(fn:not($paramXml/method/params/param)) then (: If there are no parameters to the function :)
