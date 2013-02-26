@@ -12,8 +12,8 @@ let $p := for $each in $paramXml/method/params/param
                 fn:concat('fn:',$each/text(),'()')
 			else if($each/@type="xs:hexBinary") then
                 fn:concat('xs:hexBinary("',$each/text(),'")')
-            else if($each/@type="document-node(element(*, xs:untyped))") then
-                fn:concat('document{',xdmp:quote($each/*),'}')             
+            else if($each/@type="document-node(element(*, xs:untyped))") then                
+                fn:concat('document{',xdmp:quote($each/*,<options xmlns="xdmp:quote"><use-character-maps>xdmp:sgml-entities-normal</use-character-maps></options>),'}')                          
             else
                 $each/text()
           ) 		 
