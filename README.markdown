@@ -29,7 +29,4 @@ Quickstart
 
 Voila! Just add the body to the xquery functions and call the respective methods from generated java concrete classes (Impls).
 
-Inspired by:
-[Building Bridges from Java to XQuery](http://archive.xmlprague.cz/2012/files/xmlprague-2012-proceedings.pdf#page=185) by [Charles Foster](http://www.cfoster.net/)
-
 This work is under MIT license.
